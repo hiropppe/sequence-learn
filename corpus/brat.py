@@ -11,7 +11,7 @@ encoding = 'utf-8'
 
 #sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
-def tagging(rawfile, annfile, stdout=True):
+def tagging(rawfile, annfile):
   # sort annotations by left position
   ann_lines = sorted(open(annfile, 'r').readlines(), key=lambda x: int(x.split()[2]))
   ann_index = 0

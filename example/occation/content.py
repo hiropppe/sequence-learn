@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import requests
-import sys, os, codecs
+import sys, codecs
 import extractcontent
 
 extractor = extractcontent.ExtractContent()
@@ -10,15 +9,12 @@ extractor.set_option({
     'min_length': 0
   })
 
+sys.stdin = codecs.getwriter('utf-8')(sys.stdin)
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
-for url in sys.stdin:
-  try:
-    response = requests.get(url[:-1]) 
-    content, _ = extractor.analyse(response.content.decode(response.apparent_encoding))
-    content = content.strip().replace('\r', '')
-    sys.stdout.write(content)
-    sys.stdout.flush()
-  except Exception, details:
-    sys.stderr.write(details)
+text = '\n'.join([line for line in sys.stdin])
+text, _ = extractor.analyse(text.decode('utf-8'))
+text = text.strip().replace('\r', '')
+sys.stdout.write(text)
+sys.stdout.flush()
+

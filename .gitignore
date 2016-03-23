@@ -60,3 +60,11 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+example/occation/data/
+example/occation/cv/
+*.download
+*.raw
+*.txt
+*.ann
+*.log

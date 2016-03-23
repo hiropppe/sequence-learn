@@ -12,9 +12,7 @@ import shutil
 args = sys.argv
 
 cv = int(args[1]) if 1 < len(args) else 10
-work_dir = 'cv'
-
-os.mkdir(work_dir)
+work_dir = args[2] if 2 < len(args) else 'cv'
 
 all_files = glob.glob('data/*.ann')
 random.shuffle(all_files)

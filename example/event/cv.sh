@@ -11,8 +11,8 @@ do
   ./conv_conll.sh ./cv/${i}/train/ train.txt [0-9]{4}
   ./conv_conll.sh ./cv/${i}/test/ test.txt [0-9]{4}
   echo "Generate features ..."
-  cat ./cv/${i}/train/train.txt | ./chunking.py > ./cv/${i}/train.crfsuite.txt
-  cat ./cv/${i}/test/test.txt   | ./chunking.py > ./cv/${i}/test.crfsuite.txt
+  cat ./cv/${i}/train/train.txt | ./feature/ner1.py > ./cv/${i}/train.crfsuite.txt
+  cat ./cv/${i}/test/test.txt   | ./feature/ner1.py > ./cv/${i}/test.crfsuite.txt
   echo "Train CRF model ..."
   crfsuite learn -m ./cv/${i}/model -l -L ./cv/${i}/train.log ./cv/${i}/train.crfsuite.txt
   #crfsuite learn -e2 ./cv/${i}/train.crfsuite.txt ./cv/${i}/test.crfsuite.txt

@@ -54,11 +54,13 @@ def tagging(rawfile, annfile):
 
       label = iob + '-' + tag if tag else iob
       features = node.feature.split(',')
-      pos = features[0]
-      pos_detail = features[1]
+      pos0 = features[0]
+      pos1 = features[1]
+      pos2 = features[2]
       
-      sys.stdout.write('%s %s %s\n' % (node.surface, pos, label))
-      #sys.stdout.write('%s %s %s %s\n' % (node.surface, pos, pos_detail, label))
+      #sys.stdout.write('%s %s %s\n' % (node.surface, pos0, label))
+      sys.stdout.write('%s %s_%s %s\n' % (node.surface, pos0, pos1, label))
+      #sys.stdout.write('%s %s_%s_%s %s\n' % (node.surface, pos0, pos1, pos2, label))
 
       node_left = node_right
       # increment wakati space

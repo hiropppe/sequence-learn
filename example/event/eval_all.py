@@ -42,11 +42,11 @@ for line in sys.stdin:
     label_stats[tag][1] += num_model
     label_stats[tag][2] += num_ref
 
-sys.stdout.write('Performance by label (#match, #model, #ref) (precision, recall, F1):\n')
+sys.stdout.write('Performance by label (#match, #model, #ref) (acc, precision, recall, F1):\n')
 
-total_match = 0
-total_model = 0
-total_ref = 0
+total_match, total_model, total_ref = 0, 0, 0
+o_match, o_model, o_ref = 0, 0, 0
+occ_match, occ_model, occ_ref = 0, 0, 0
 for tag in tags:
   num_match = label_stats[tag][0]
   num_model = label_stats[tag][1]
@@ -61,9 +61,14 @@ for tag in tags:
   total_ref += num_ref
   
   if tag == 'O':
-    o_match = num_match
-    o_model = num_model
-    o_ref = num_ref
+    o_match += num_match
+    o_model += num_model
+    o_ref += num_ref
+
+  if tag in ['B-OCCATION', 'I-OCCATION']:
+    occ_match += num_match
+    occ_model += num_model
+    occ_ref += num_ref
 
 pre = total_match/total_model
 rec = total_match/total_ref
@@ -79,4 +84,14 @@ pre = total_match/total_model
 rec = total_match/total_ref
 
 sys.stdout.write('Total(exclude O): (%i, %i, %i) (%.4f, %.4f, %.4f)\n' % 
+                    (total_match, total_model, total_ref, pre, rec, 2*pre*rec/(pre+rec)))
+
+total_match -= occ_match
+total_model -= occ_model
+total_ref -= occ_ref
+
+pre = total_match/total_model
+rec = total_match/total_ref
+
+sys.stdout.write('Total(exclude O, I-OCCATION, B-OCCATION): (%i, %i, %i) (%.4f, %.4f, %.4f)\n' % 
                     (total_match, total_model, total_ref, pre, rec, 2*pre*rec/(pre+rec)))

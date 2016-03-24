@@ -68,3 +68,4 @@ example/event/cv/
 *.txt
 *.ann
 *.log
+*.swp

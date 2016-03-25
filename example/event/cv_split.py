@@ -34,9 +34,9 @@ for i in xrange(cv):
 
   for train_file in train_files:
     shutil.copy2(train_file, cv_train_dir)
-    shutil.copy2(train_file.replace('.ann', '.raw'), cv_train_dir.replace('.ann', '.raw'))
+    shutil.copy2(train_file.replace('.ann', '.txt'), cv_train_dir.replace('.ann', '.txt'))
   
   for test_file in test_files:
     shutil.copy2(test_file, cv_test_dir)  
-    shutil.copy2(test_file.replace('.ann', '.raw'), cv_test_dir.replace('.ann', '.raw'))
+    shutil.copy2(test_file.replace('.ann', '.txt'), cv_test_dir.replace('.ann', '.txt'))
 

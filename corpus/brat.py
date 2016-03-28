@@ -52,7 +52,7 @@ def tagging(rawfile, annfile):
         node_right += 1
         i += 1
         if i == 5:
-          raise Exception(u'Unexpected loop. %s\t%s' % (raw[node_left:node_right], surface))
+          raise Exception(u'char sequence not match. %s\t%s' % (raw[node_left:node_right], surface))
       
       if 0 < len(ann_lines):
         if ann_right <= node_left and ann_index < len(ann_lines) - 1:
@@ -74,9 +74,8 @@ def tagging(rawfile, annfile):
 
       label = iob + '-' + tag if tag else iob
       
-      #sys.stdout.write('%s %s %s\n' % (node.surface, pos0, label))
-      sys.stdout.write(u'%s %s_%s %s\n' % (node.surface.decode(encoding), pos0.decode(encoding), pos1.decode(encoding), label))
-      #sys.stdout.write('%s %s_%s_%s %s\n' % (node.surface, pos0, pos1, pos2, label))
+      #sys.stdout.write(u'%s %s_%s %s\n' % (node.surface.decode(encoding), pos0.decode(encoding), pos1.decode(encoding), label))
+      sys.stdout.write('%s %s_%s_%s %s\n' % (node.surface.decode(encoding), pos0.decode(encoding), pos1.decode(encoding), pos2.decode(encoding), label))
 
       node_left = node_right
       pre_tag = tag

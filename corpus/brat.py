@@ -18,11 +18,10 @@ def tagging(rawfile, annfile):
   ann_lines = sorted(open(annfile, 'r').readlines(), key=lambda x: int(x.split()[2]))
   ann_index, ann_left, ann_right, node_left, node_right = 0, 0, 0, 0, 0
   
-  #text = open(rawfile, 'r').read()
-  #raw = text.decode('utf-8')
   raw = codecs.open(rawfile, 'r', encoding).read()
   for line in raw.split('\n'):
-    node = mecab.parseToNode(line.encode(encoding))
+    encoded_line = line.encode(encoding)
+    node = mecab.parseToNode(encoded_line)
     node = node.next
      
     pre_tag = None
@@ -46,14 +45,13 @@ def tagging(rawfile, annfile):
       node_left += num_lspace
 
       # Adjust node_right in raw data
-      i = 0
+      #i = 0
       while not re.sub(r'\s', '', raw[node_left:node_right]) == surface:
-        print(u'"%s"\t"%s"' % (re.sub(r'\s', '', raw[node_left:node_right]), surface))
+        #print(u'1 "%s"\t"%s"' % (re.sub(r'\s', '', raw[node_left:node_right]), surface))
         node_right += 1
-        i += 1
-        if i == 5:
-          #break
-          raise Exception('err. %s<>%s' % (raw[node_left:node_right].encode(encoding), surface))
+        #i += 1
+        #if i == 5:
+        #  raise Exception(u'err. %s\t%s' % (raw[node_left:node_right], surface))
       
       if 0 < len(ann_lines):
         if ann_right < node_left and ann_index < len(ann_lines) - 1:
@@ -63,8 +61,8 @@ def tagging(rawfile, annfile):
         ann_left  = int(ann[2])
         ann_right = int(ann[3])
       
-      print(u'%s "%s"\t"%s"\t"%s"' % (' ' in raw[node_left:node_right], raw[node_left:node_right], raw[node_left:node_right].replace(' ', ''), surface))
-      print(u'%i %i %i %i' % (ann_left, node_left, node_right, ann_right))
+      #print(u'2 %s "%s"\t"%s"\t"%s"' % (' ' in raw[node_left:node_right], raw[node_left:node_right], raw[node_left:node_right].replace(' ', ''), surface))
+      #print(u'3 %i %i %i %i' % (ann_left, node_left, node_right, ann_right))
       if not pos0 == 'BOS/EOS' and ann_left <= node_left and node_right <= ann_right:
         tag = ann[1]
         if pre_iob == 'O' or not pre_tag == tag:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, codecs
+import sys, codecs, re
 import extractcontent
 
 extractor = extractcontent.ExtractContent()
@@ -12,9 +12,12 @@ extractor.set_option({
 sys.stdin = codecs.getwriter('utf-8')(sys.stdin)
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
+re_ctl = re.compile(r'[\x00-\x08\x0d-\x1f]') # [:cntrl:]
+
 text = '\n'.join([line for line in sys.stdin])
 text, _ = extractor.analyse(text.decode('utf-8'))
-text = text.strip().replace('\r', '')
+text = text.strip()
+text = re_ctl.sub('', text)
 sys.stdout.write(text)
 sys.stdout.flush()
 

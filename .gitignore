@@ -69,3 +69,4 @@ example/event/cv/
 *.ann
 *.log
 *.swp
+.python-version

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 *+-
 
 import sys, codecs, re
 import extractcontent
-#import mojimoji
 
 extractor = extractcontent.ExtractContent()
 extractor.set_option({
@@ -19,7 +19,7 @@ text = '\n'.join([line for line in sys.stdin])
 text, _ = extractor.analyse(text.decode('utf-8'))
 text = text.strip()
 text = re_ctl.sub('', text)
-#text = mojimoji.han_to_zen(text)
+text = text.replace(' ', u'　')
 sys.stdout.write(text)
 sys.stdout.flush()
 

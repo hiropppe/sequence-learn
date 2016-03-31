@@ -20,6 +20,9 @@ def tagging(rawfile, annfile):
   ann_left, ann_right, node_left, node_right = 0, 0, 0, 0
   
   raw = codecs.open(rawfile, 'r', encoding).read()
+  if ' ' in raw:
+    raise ValueError('Corpus must not contains half space char')
+
   for line in raw.split('\n'):
     encoded_line = line.encode(encoding)
     node = mecab.parseToNode(encoded_line)
@@ -42,17 +45,17 @@ def tagging(rawfile, annfile):
       node_right = node_left + len(surface)
       
       # Adjust node left in raw data
-      num_lspace = len(raw[node_left:node_right]) - len(raw[node_left:node_right].lstrip()) 
-      node_left += num_lspace
+      #num_lspace = len(raw[node_left:node_right]) - len(raw[node_left:node_right].lstrip()) 
+      #node_left += num_lspace
 
       # Adjust node_right in raw data
-      i = 0
-      while not raw[node_left:node_right] == surface and not re.sub(r'\s', '', raw[node_left:node_right]) == surface:
-        #print(u'1 "%s\t%s"\t"%s"' % (raw[node_left:node_right], re.sub(r'\s', '', raw[node_left:node_right]), surface))
-        node_right += 1
-        i += 1
-        if i == 5:
-          raise Exception(u'char sequence not match. %s\t%s' % (raw[node_left:node_right], surface))
+      #i = 0
+      #while not raw[node_left:node_right] == surface and not re.sub(r'\s', '', raw[node_left:node_right]) == surface:
+      #  print(u'1 "%s" "%s" "%s"' % (raw[node_left:node_right], re.sub(r'\s', '', raw[node_left:node_right]), surface))
+      #  node_right += 1
+      #  i += 1
+      #  if i == 5:
+      #    raise Exception(u'char sequence not match. %s\t%s' % (raw[node_left:node_right], surface))
       
       if 0 < len(ann_lines):
         if ann_right <= node_left and ann_index < len(ann_lines) - 1:

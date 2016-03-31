@@ -18,6 +18,85 @@ from sqlearn.crfsuite import crfutils
 from sqlearn.crfsuite import ner
 
 encoding = 'utf-8'
+sys.stdout = codecs.getwriter(encoding)(sys.stdout)
+
+def conv_conll(rawfile, annfile):
+  # sort annotations by left position
+  ann_lines = sorted(open(annfile, 'r').readlines(), key=lambda x: int(x.split()[2]))
+  ann_index = -1
+  ann_left, ann_right, node_left, node_right = 0, 0, 0, 0
+  
+  raw = codecs.open(rawfile, 'r', encoding).read()
+  if ' ' in raw:
+    raise ValueError('Corpus must not contain half space char')
+
+  for line in raw.split('\n'):
+    encoded_line = line.encode(encoding)
+    node = mecab.parseToNode(encoded_line)
+    node = node.next
+     
+    pre_tag = None
+    pre_iob = 'O'
+    
+    while node:
+      tag = None
+      iob = 'O'
+      
+      surface = node.surface.decode(encoding)
+      features = node.feature.split(',')
+      
+      pos0 = features[0]
+      pos1 = features[1]
+      pos2 = features[2]
+      
+      node_right = node_left + len(surface)
+      
+      # Adjust node left in raw data
+      #num_lspace = len(raw[node_left:node_right]) - len(raw[node_left:node_right].lstrip()) 
+      #node_left += num_lspace
+
+      # Adjust node_right in raw data
+      #i = 0
+      #while not raw[node_left:node_right] == surface and not re.sub(r'\s', '', raw[node_left:node_right]) == surface:
+      #  print(u'1 "%s" "%s" "%s"' % (raw[node_left:node_right], re.sub(r'\s', '', raw[node_left:node_right]), surface))
+      #  node_right += 1
+      #  i += 1
+      #  if i == 5:
+      #    raise Exception(u'char sequence not match. %s\t%s' % (raw[node_left:node_right], surface))
+      
+      if 0 < len(ann_lines):
+        if ann_right <= node_left and ann_index < len(ann_lines) - 1:
+          ann_index += 1
+        
+        if not ann_index == -1:
+          ann = ann_lines[ann_index].split()
+          ann_left  = int(ann[2])
+          ann_right = int(ann[3])
+      
+      #print(u'2 %s "%s"\t"%s"\t"%s"' % (' ' in raw[node_left:node_right], raw[node_left:node_right], raw[node_left:node_right].replace(' ', ''), surface))
+      #print(u'3 %i %i %i %i' % (ann_left, node_left, node_right, ann_right))
+      if not pos0 == 'BOS/EOS' and ann_left <= node_left and node_right <= ann_right:
+        tag = ann[1]
+        if pre_iob == 'O' or not pre_tag == tag:
+          iob = 'B'
+        else:
+          iob = 'I'
+
+      label = iob + '-' + tag if tag else iob
+      
+      #sys.stdout.write(u'%s %s_%s %s\n' % (node.surface.decode(encoding), pos0.decode(encoding), pos1.decode(encoding), label))
+      sys.stdout.write(u'%s %s_%s_%s %s\n' % (node.surface.decode(encoding), pos0.decode(encoding), pos1.decode(encoding), pos2.decode(encoding), label))
+
+      node_left = node_right
+      pre_tag = tag
+      pre_iob = iob
+      
+      node = node.next
+    
+    node_left += 1
+    node_right += 1
+
+  sys.stdout.write('\n')
 
 class Annotator:
   
@@ -25,7 +104,7 @@ class Annotator:
     self.tagger = pycrfsuite.Tagger()
     self.tagger.open(model)
   
-  def ann(self, text, output=sys.stdout):
+  def ann(self, text):
     surface_index = 0
     tag_index, tag_start, tag_offset = 1, 0, 0
     pre_tag = None
@@ -39,10 +118,12 @@ class Annotator:
       else:
         tag = None
       
-      surface_len = max(len(item[0].decode('utf-8')), 1)
+      surface_len = max(len(item[0]), 1)
 
       if pre_iob in ['B', 'I'] and iob in ['B', 'O']:
-        output.write('T%i\t%s %s %s\t%s\n' % (tag_index, pre_tag, tag_start, tag_start + tag_offset, text[tag_start:tag_start + tag_offset]))
+        ann = 'T%i\t%s %s %s\t%s' % (tag_index, pre_tag, tag_start, tag_start + tag_offset, text[tag_start:tag_start + tag_offset])
+        #output.write('%s\n' % ann)
+        yield ann 
         tag_index += 1
       
       if iob == 'B':
@@ -66,12 +147,12 @@ class Annotator:
   def extract_feature(self, text):
     parsed_sents = []
     for sent in text.split('\n'):
-      encoded_sent = sent.encode('utf-8') 
+      encoded_sent = sent.encode(encoding) 
       node = mecab.parseToNode(encoded_sent)
       node = node.next
       while node:
-        surface = node.surface
-        features = node.feature.split(',')
+        surface = node.surface.decode(encoding)
+        features = node.feature.decode(encoding).split(',')
         parsed_sents.append('%s %s_%s_%s' % (surface, features[0], features[1], features[2]))
         node = node.next
     
@@ -81,6 +162,7 @@ class Annotator:
       ner.feature_extractor(X)
       yield X
 
+# test
 if __name__ == '__main__':
   command = sys.argv[1]
   text_file = sys.argv[2]
@@ -90,9 +172,10 @@ if __name__ == '__main__':
   
   text = codecs.open(text_file, 'r', 'utf-8').read().replace(' ', u'　')
   if 'tag' == command:
-    for item in ann.tagging(text):
-      sys.stdout.write('%s %s\n' % (item[0], item[1]))
+    for tag in ann.tagging(text):
+      sys.stdout.write('%s %s\n' % (tag[0], tag[1]))
   elif 'ann' == command:
-    ann.ann(text)
+    for ann in ann.ann(text):
+      sys.stdout.write('%s\n' % ann)
   else:
     pass

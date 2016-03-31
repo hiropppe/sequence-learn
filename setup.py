@@ -2,7 +2,7 @@
 
 import os
 from setuptools import setup
-from srl import __version__
+from sqlearn import __version__
 
 requires = [
 ]
@@ -11,15 +11,16 @@ def read(name):
     return open(os.path.join(os.path.dirname(__file__), name)).read()
 
 setup(
-  name='seq-learn',
+  name='sequence-learn',
   version=__version__,
   description='Some utility for sequencial labeling',
   author='take',
   url='',
   packages=[
+    'sqlearn'
   ],
   scripts=[
-    'scripts/tagging',
+    'scripts/brat2conll',
   ],
   install_requires=requires,
   license='MIT',

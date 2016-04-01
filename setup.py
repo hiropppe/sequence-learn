@@ -17,7 +17,9 @@ setup(
   author='take',
   url='',
   packages=[
-    'sqlearn'
+    'sqlearn',
+    'sqlearn.corpus',
+    'sqlearn.crfsuite'
   ],
   scripts=[
     'scripts/brat2conll',

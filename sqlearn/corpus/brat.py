@@ -12,13 +12,15 @@ mecab = MeCab.Tagger()
 
 import pycrfsuite
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../../')
+#sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../../')
 
 from sqlearn.crfsuite import crfutils
 from sqlearn.crfsuite import ner
 
 encoding = 'utf-8'
 sys.stdout = codecs.getwriter(encoding)(sys.stdout)
+
+re_ctl = re.compile(r'[\x00-\x08\x0d-\x1f]') # [:cntrl:]
 
 def conv_conll(rawfile, annfile):
   # sort annotations by left position
@@ -162,6 +164,12 @@ class Annotator:
       ner.feature_extractor(X)
       yield X
 
+  def norm(self, text):
+    text = text.strip()
+    text = re_ctl.sub('', text)
+    text = text.replace(' ', u'　')
+    return text
+
 # test
 if __name__ == '__main__':
   command = sys.argv[1]
@@ -171,6 +179,8 @@ if __name__ == '__main__':
   ann = Annotator(model_file)
   
   text = codecs.open(text_file, 'r', 'utf-8').read().replace(' ', u'　')
+  text = ann.norm(text)
+  
   if 'tag' == command:
     for tag in ann.tagging(text):
       sys.stdout.write('%s %s\n' % (tag[0], tag[1]))

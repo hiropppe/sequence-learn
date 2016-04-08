@@ -2,7 +2,7 @@
 
 echo "[CRFSuite Cross Validation]"
 echo "Convert to brat to CoNLL format"
-./conv_conll.sh ./data/ train.conll.txt [0-9]{4}
+./conv_conll.sh ./data/ train.conll.txt [0-9]+
 echo "Generate features"
 cat ./data/train.conll.txt | python ./feature/ner.py > ./data/train.crfsuite.txt
 echo "Train CRF model"

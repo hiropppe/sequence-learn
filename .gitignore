@@ -61,8 +61,8 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
-example/event/data/
-example/event/cv/
+example/*/data/
+example/*/cv/
 *.download
 *.raw
 *.txt

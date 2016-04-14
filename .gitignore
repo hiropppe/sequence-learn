@@ -63,6 +63,8 @@ target/
 
 example/*/data/
 example/*/cv/
+example/*/notebook/*.crfsuite
+example/*/notebook/*.conll
 *.download
 *.raw
 *.txt

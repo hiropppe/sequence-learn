@@ -71,14 +71,16 @@ def conv_conll(rawfile, annfile):
           ann_index += 1
         
         if not ann_index == -1:
-          ann = ann_lines[ann_index].split()
-          ann_left  = int(ann[2])
-          ann_right = int(ann[3])
-      
+          ann = ann_lines[ann_index].split('\t')[1]
+          ann_tag   = ann[:ann.index(' ')]
+          ann_range = ann[ann.index(' ')+1:]
+          ann_left  = int(ann_range.split()[0])
+          ann_right = int(ann_range.split()[-1])
+
       #print(u'2 %s "%s"\t"%s"\t"%s"' % (' ' in raw[node_left:node_right], raw[node_left:node_right], raw[node_left:node_right].replace(' ', ''), surface))
       #print(u'3 %i %i %i %i' % (ann_left, node_left, node_right, ann_right))
       if not pos0 == 'BOS/EOS' and ann_left <= node_left and node_right <= ann_right:
-        tag = ann[1]
+        tag = ann_tag
         if pre_iob == 'O' or not pre_tag == tag:
           iob = 'B'
         else:

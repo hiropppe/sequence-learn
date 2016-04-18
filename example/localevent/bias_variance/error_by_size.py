@@ -50,6 +50,14 @@ for line in codecs.open('data.conll', 'r', 'utf-8'):
         sent.append('%s %s' % (splited_line[0], splited_line[1]))
         sent_label.append(splited_line[2])
 
+# process last sent if exists
+if sent:
+  sent.append('\n')
+  for item in crfutils.readiter(sent, ['w', 'pos'], ' '):
+    ner.feature_extractor(item)
+    X.append(item)
+    y.append(sent_label)
+
 X = [[feature['F'] for feature in sent] for sent in X]
 
 X = np.asarray(X)
@@ -95,7 +103,6 @@ for fold_idx, (train_index, test_index) in enumerate(kf):
     trainer.clear()
 
     # predict
-
     tagger.open('model')
     y_train_pred = [tagger.tag(xseq) for xseq in X_train]
     y_test_pred  = [tagger.tag(xseq) for xseq in X_test]

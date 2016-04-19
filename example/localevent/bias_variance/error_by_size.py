@@ -68,14 +68,14 @@ if 1 < len(sys.argv):
 else:
   data_size = len(X) 
 
-k = 3
+k = 5 
 
 trainer = crf.Trainer(verbose=False)
 trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
     'c2': 1e-3,  # coefficient for L2 penalty
-    'max_iterations': 50,  # stop earlier
-    'num_memories': 3,
+    #'max_iterations': 50,  # stop earlier
+    #'num_memories': 3,
 
     # include transitions that are possible, but not observed
     'feature.possible_transitions': True
@@ -88,7 +88,7 @@ test_errors = defaultdict(list)
 
 kf = cross_validation.KFold(n=data_size, n_folds=k, shuffle=True, random_state=None)
 
-sys.stderr.write('Split %i dataset into %i consecutive folds\n' % (data_size, k))
+sys.stderr.write('Split %i data into %i consecutive folds\n' % (data_size, k))
 for fold_idx, (train_index, test_index) in enumerate(kf):
     sys.stderr.write('Iteration #%i\n' % fold_idx)
 

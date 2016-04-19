@@ -46,3 +46,4 @@ plot_bias_variance(data_sizes, train_errors, test_errors, ['B-ADDRESS', 'I-ADDRE
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-DATE_PERIOD', 'I-DATE_PERIOD'], 'err_dateperiod.png')
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-DATE', 'I-DATE'], 'err_date.png')
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-TIME_PERIOD', 'I-TIME_PERIOD'], 'err_timeperiod.png')
+plot_bias_variance(data_sizes, train_errors, test_errors, ['B-FEE', 'I-FEE'], 'err_fee.png')

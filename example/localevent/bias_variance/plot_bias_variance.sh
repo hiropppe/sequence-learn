@@ -1,9 +1,9 @@
 #!/bin/bash
 touch errors
-for n in `seq 50 10 500`
+for n in `seq 50 5 500`
 do
-  python ./error_by_size.py $n >> errors
+  python ./score_by_size.py $n >> scores
   sleep 30
 done
 
-cat errors | python plot.py
+cat scores | python plot.py

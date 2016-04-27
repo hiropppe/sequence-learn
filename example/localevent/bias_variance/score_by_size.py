@@ -19,17 +19,38 @@ from sklearn.preprocessing import LabelBinarizer
 
 import pycrfsuite as crf
 
-def error_score(y_true, y_pred):
+def f_score(y_true, y_pred):
     lb = LabelBinarizer()
-    y_true_combined = lb.fit_transform(list(chain.from_iterable(y_true)))
-    y_pred_combined = lb.transform(list(chain.from_iterable(y_pred)))
+    y_true = lb.fit_transform(list(chain.from_iterable(y_true)))
+    y_pred = lb.transform(list(chain.from_iterable(y_pred)))
 
     class_indices = {cls: idx for idx, cls in enumerate(lb.classes_)}
     
-    y_acc_eval_array = y_true_combined + y_pred_combined
-    error_score = {item[0]: 1 - sum(y_acc_eval_array[:, item[1]] == 2)/sum(y_acc_eval_array[:, item[1]] > 0) for item in class_indices.items()}
-    
-    return error_score
+    y_acc = y_true + y_pred
+
+    return {item[0]: 
+            (f_acc(y_acc, item[1]),
+             f_rec(y_acc, y_true, item[1]),
+             f_pre(y_acc, y_pred, item[1]),
+             f_f1(y_acc, y_true, y_pred, item[1])) for item in class_indices.items()}
+
+def f_acc(y_acc, index):
+    return sum(y_acc[:, index] == 2)/sum(y_acc[:, index] > 0)
+
+def f_rec(y_acc, y_true, index):
+    return sum(y_acc[:, index] == 2)/sum(y_true[:, index] == 1)
+
+def f_pre(y_acc, y_pred, index):
+    if not y_pred[:, index].any():
+      return 0
+    return sum(y_acc[:, index] == 2)/sum(y_pred[:, index] == 1)
+
+def f_f1(y_acc, y_true, y_pred, index):
+    rec = f_rec(y_acc, y_true, index)
+    pre = f_pre(y_acc, y_pred, index)
+    if not rec+pre:
+      return 0
+    return 2*rec*pre/(rec+pre)
 
 X = []
 y = []
@@ -72,8 +93,9 @@ k = 5
 
 trainer = crf.Trainer(verbose=False)
 trainer.set_params({
-    'c1': 1.0,   # coefficient for L1 penalty
-    'c2': 1e-3,  # coefficient for L2 penalty
+    #'c1': 1.0,   # coefficient for L1 penalty
+    #'c2': 1e-3,  # coefficient for L2 penalty
+    'c2': 1.0,  # coefficient for L2 penalty
     #'max_iterations': 50,  # stop earlier
     #'num_memories': 3,
 
@@ -83,8 +105,14 @@ trainer.set_params({
 
 tagger = crf.Tagger()
 
-train_errors = defaultdict(list)
-test_errors = defaultdict(list)
+train_scores = defaultdict(lambda: defaultdict(list))
+test_scores = defaultdict(lambda: defaultdict(list))
+
+def append_score(d, item):
+    d[item[0]]['acc'].append(item[1][0])
+    d[item[0]]['rec'].append(item[1][1])
+    d[item[0]]['pre'].append(item[1][2])
+    d[item[0]]['f1'].append(item[1][3])
 
 kf = cross_validation.KFold(n=data_size, n_folds=k, shuffle=True, random_state=None)
 
@@ -109,18 +137,18 @@ for fold_idx, (train_index, test_index) in enumerate(kf):
     tagger.close()
 
     # evaluate
-    train_error = error_score(y_train, y_train_pred)
-    test_error = error_score(y_test, y_test_pred)
+    train_score = f_score(y_train, y_train_pred)
+    test_score = f_score(y_test, y_test_pred)
 
-    map(lambda item: train_errors[item[0]].append(item[1]), train_error.items())
-    map(lambda item: test_errors[item[0]].append(item[1]), test_error.items())
+    map(lambda item: append_score(train_scores, item), train_score.items())
+    map(lambda item: append_score(test_scores, item), test_score.items())
 
 sys.stdout.write('#%i\n' % data_size)
-sys.stdout.write('Train errors\n')
-for item in sorted(train_errors.items(), key=lambda x: ''.join([x[0][2:], x[0][:1]])):
-  sys.stdout.write(' %s: %.4f\n' % (item[0], np.mean(item[1])))
+sys.stdout.write('Train scores\n')
+for item in sorted(train_scores.items(), key=lambda x: ''.join([x[0][2:], x[0][:1]])):
+  sys.stdout.write(' %s: %.4f %.4f %.4f %.4f\n' % (item[0], np.mean(item[1]['acc']), np.mean(item[1]['rec']), np.mean(item[1]['pre']), np.mean(item[1]['f1'])))
 
-sys.stdout.write('Test errors\n')
-for item in sorted(test_errors.items(), key=lambda x: ''.join([x[0][2:], x[0][:1]])):
-  sys.stdout.write(' %s: %.4f\n' % (item[0], np.mean(item[1])))
+sys.stdout.write('Test scores\n')
+for item in sorted(test_scores.items(), key=lambda x: ''.join([x[0][2:], x[0][:1]])):
+  sys.stdout.write(' %s: %.4f %.4f %.4f %.4f\n' % (item[0], np.mean(item[1]['acc']), np.mean(item[1]['rec']), np.mean(item[1]['pre']), np.mean(item[1]['f1'])))
 

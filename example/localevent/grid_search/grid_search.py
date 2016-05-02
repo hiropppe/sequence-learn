@@ -11,6 +11,7 @@ import numpy as np
 from sqlearn.crfsuite import crfutils
 from sqlearn.crfsuite import ner
 from sqlearn.crfsuite.grid_search import GridSearch
+from sqlearn.crfsuite.metrics import accuracy, recall, precision, f1_score
 
 if __name__ == '__main__':
   X, y, sent, sent_label = [], [], [], []

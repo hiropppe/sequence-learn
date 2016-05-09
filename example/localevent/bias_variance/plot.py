@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 data_sizes = []
 train_errors = defaultdict(list)
 test_errors = defaultdict(list)
+test_scores = defaultdict(lambda: defaultdict(list))
 
 for line in sys.stdin:
   line = line[:-1]
@@ -20,14 +21,14 @@ for line in sys.stdin:
     scores = None
   elif line == 'Test scores':
     errors = test_errors
-    scores = defaultdict(lambda: defaultdict(list))
+    scores = test_scores
   elif re.match(r'^ [BI]\-', line):
     tag = line.split()[0][:-1]
     errors[tag].append(1-float(line.split()[1]))
-    if scores:
-      scores[tag]['Recall'].append(float(line.split()[2])
-      scores[tag]['Precision'].append(float(line.split()[3])
-      scores[tag]['F1'].append(float(line.split()[4])
+    if not scores == None:
+      scores[tag]['Recall'].append(float(line.split()[2]))
+      scores[tag]['Precision'].append(float(line.split()[3]))
+      scores[tag]['F1'].append(float(line.split()[4]))
   else: 
     size_m = re.match('^#([0-9]+)$', line)
     if size_m:

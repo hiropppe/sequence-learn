@@ -10,11 +10,12 @@ import pycrfsuite as crf
 from sklearn.cross_validation import KFold
 from sklearn.grid_search import ParameterGrid
 
-from metrics import f1_score
+from metrics import scorer, f1_score
 
 class GridSearch(object):
   
-  def __init__(self, param_searches, param_base={}, cv=5, scorer=f1_score, model=None):
+  def __init__(self, param_searches, param_base={}, cv=5,
+            scorer=scorer(f1_score, tags_discard={'O'}), model=None):
     self.param_searches = param_searches
     self.param_base = param_base
     self.cv = cv
@@ -28,14 +29,11 @@ class GridSearch(object):
 
   def search(self, X, y, verbose):
     for param_search in self.param_searches:
-      if '__best_parameter' in param_search.keys() and param_search['__best_parameter']:
-        self.param_base = self.best_param.copy()
-
-      if param_search.keys()[0] in {'lbfgs', 'l2sgd', 'ap', 'pa', 'arow'}:
-        for algorithm, param_gs in param_search.items():
-          self.search_grid(X, y, algorithm, param_gs, verbose)
+      if isinstance(param_search.values()[0], dict):
+        for _, param_gs in param_search.items():
+          self.search_grid(X, y, param_gs, verbose)
       else:
-        self.search_grid(X, y, algorithm, param_search, verbose)
+        self.search_grid(X, y, param_search, verbose)
     
     if self.model:
       trainer = crf.Trainer(verbose)
@@ -45,7 +43,15 @@ class GridSearch(object):
         trainer.append(xseq, yseq)
       trainer.train(model)
 
-  def search_grid(self, X, y, algorithm, param_grid, verbose):
+  def search_grid(self, X, y, param_grid, verbose):
+    if '__algorithm' in param_grid.keys():
+      algorithm = param_grid['__algorithm']
+    else:
+      algorithm = self.best_algorithm
+    
+    if '__best_parameter' in param_grid.keys() and param_grid['__best_parameter']:
+      self.param_base = self.best_param.copy() 
+    
     param_grid = ParameterGrid({p[0]: p[1] for p in param_grid.items() if not p[0].startswith('__')})          
     for param in param_grid:
       trainer = crf.Trainer(verbose=verbose)
@@ -76,7 +82,7 @@ class GridSearch(object):
         y_pred = [tagger.tag(xseq) for xseq in X_test]
         predict_elapsed_in_sec = time.time() - start
         tagger.close()
-        score = self.scorer(y_pred, y_test, tags_discard={'O'})
+        score = self.scorer(y_pred, y_test)
         
         print('  cv(%i): score %.4f, train size %i, test size %i, train elapsed %.4f sec, test elapsed %.4f sec' %
                           (j, score, X_train.shape[0], X_test.shape[0], fit_elapsed_in_sec, predict_elapsed_in_sec))

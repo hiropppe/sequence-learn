@@ -44,7 +44,6 @@ if __name__ == '__main__':
   y = np.asarray(y)
 
   base_param = {
-    'max_iterations': 100,
     'feature.minfreq': 0,
     'feature.possible_states': False,
     'feature.possible_transitions': False
@@ -52,13 +51,19 @@ if __name__ == '__main__':
 
   search_param = [
     {
-      'lbfgs': {
-        'c1': np.linspace(0, 1, num=2),
-        'c2': np.linspace(0, 1, num=2),
-        'epsilon': np.linspace(0, 1, num=2)
+      'c1_lbfgs': {
+        '__algorithm': 'lbfgs',
+        'c1': [1e-4, 1e-3, 0.01, 0.1, 1.],
+        'c2': [0.]
+      },
+      'c2_lbfgs': {
+        '__algorithm': 'lbfgs',
+        'c1': [0.],
+        'c2': [1e-4, 1e-3, 0.01, 0.1, 1.]
       },
       'l2sgd': {
-        'c2': np.linspace(1e-3, 1, num=2)
+        '__algorithm': 'l2sgd',
+        'c2': [1e-4, 1e-3, 0.01, 0.1, 1.]
       }
     },
     {
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     }
   ]
 
-  gs = GridSearch(search_param, base_param, cv=2)
+  gs = GridSearch(search_param, base_param, cv=3)
   gs.search(X, y, verbose=False)
 
   print('Best score: %.4f' % gs.best_score)

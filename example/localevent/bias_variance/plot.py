@@ -41,7 +41,7 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, tags, image):
   plt.ylabel('Error')
   plt.title("Bias-Variance")
   map(lambda tag: plt.plot(data_sizes, train_errors[tag], data_sizes, test_errors[tag], lw=1), tags)
-  plt.legend(list(chain.from_iterable([['%s test error' % tag, '%s train error' % tag] for tag in tags])),
+  plt.legend(list(chain.from_iterable([['%s train error' % tag, '%s test error' % tag] for tag in tags])),
       loc='upper right')
   plt.grid(True, linestyle='-', color='0.75')
   plt.savefig(image)
@@ -64,6 +64,7 @@ plot_bias_variance(data_sizes, train_errors, test_errors, ['B-DATE_PERIOD', 'I-D
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-DATE', 'I-DATE'], 'err_date.png')
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-TIME_PERIOD', 'I-TIME_PERIOD'], 'err_timeperiod.png')
 plot_bias_variance(data_sizes, train_errors, test_errors, ['B-FEE', 'I-FEE'], 'err_fee.png')
+plot_bias_variance(data_sizes, train_errors, test_errors, ['B-POSTAL_ADDRESS', 'I-POSTAL_ADDRESS'], 'err_postaladdress.png')
 
 plot_score(data_sizes, scores, 'F1', ['B-OCCATION', 'I-OCCATION'], 'f1_occation.png')
 plot_score(data_sizes, scores, 'F1', ['B-LOCATION', 'I-LOCATION'], 'f1_location.png')
@@ -72,3 +73,4 @@ plot_score(data_sizes, scores, 'F1', ['B-DATE_PERIOD', 'I-DATE_PERIOD'], 'f1_dat
 plot_score(data_sizes, scores, 'F1', ['B-DATE', 'I-DATE'], 'f1_date.png')
 plot_score(data_sizes, scores, 'F1', ['B-TIME_PERIOD', 'I-TIME_PERIOD'], 'f1_timeperiod.png')
 plot_score(data_sizes, scores, 'F1', ['B-FEE', 'I-FEE'], 'f1_fee.png')
+plot_score(data_sizes, scores, 'F1', ['B-POSTAL_ADDRESS', 'I-POSTAL_ADDRESS'], 'f1_postaladdress.png')
